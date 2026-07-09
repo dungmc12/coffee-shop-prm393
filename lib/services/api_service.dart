@@ -158,6 +158,21 @@ class ApiService {
     }
   }
 
+  // ===================== PAYMENTS (VNPay) =====================
+
+  /// Lấy link trang thanh toán VNPay (sandbox) cho 1 đơn hàng.
+  /// App sẽ mở link này bằng trình duyệt; thanh toán xong VNPay gọi
+  /// về backend để tự cập nhật đơn thành "Đã thanh toán".
+  Future<String> getVnpayUrl(int orderId) async {
+    final res = await http
+        .get(Uri.parse('$baseUrl/payments/create-url?orderId=$orderId'))
+        .timeout(_timeout);
+    if (res.statusCode == 200) {
+      return (_decode(res) as Map<String, dynamic>)['url'] as String;
+    }
+    throw ApiException(_error(res, 'Không tạo được link thanh toán'));
+  }
+
   // ===================== MESSAGES (CHAT) =====================
 
   /// Lấy toàn bộ đoạn chat của user (cũ -> mới).

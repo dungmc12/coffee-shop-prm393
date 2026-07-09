@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/order.dart';
 import '../../services/api_service.dart';
@@ -219,9 +220,18 @@ class _OrderCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
             if (canAct) ...[
+              // Thanh toán ONLINE thật qua cổng VNPay (sandbox).
+              ListTile(
+                leading: const Icon(Iconsax.card, color: Color(0xFF1A73E8)),
+                title: const Text('Thanh toán online (VNPay)'),
+                subtitle: const Text('Mở trang thanh toán VNPay',
+                    style: TextStyle(fontSize: 12)),
+                onTap: () => _payWithVnpay(sheetCtx),
+              ),
+              // Thanh toán khi nhận hàng: chỉ đổi trạng thái trong hệ thống.
               ListTile(
                 leading: const Icon(Iconsax.card_tick, color: AppTheme.success),
-                title: const Text('Thanh toán đơn này'),
+                title: const Text('Đã thanh toán tiền mặt'),
                 onTap: () => _updateStatus(sheetCtx, 'Đã thanh toán'),
               ),
               ListTile(
@@ -240,6 +250,28 @@ class _OrderCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Thanh toán online: lấy link VNPay từ backend rồi mở bằng trình duyệt.
+  /// Thanh toán xong, VNPay tự gọi về backend cập nhật đơn "Đã thanh toán".
+  Future<void> _payWithVnpay(BuildContext sheetCtx) async {
+    final messenger = ScaffoldMessenger.of(sheetCtx);
+    try {
+      final url = await ApiService.instance.getVnpayUrl(order.id!);
+      if (sheetCtx.mounted) Navigator.pop(sheetCtx);
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Thanh toán xong hãy quay lại và kéo làm mới danh sách đơn'),
+          duration: Duration(seconds: 4),
+        ),
+      );
+    } catch (e) {
+      if (sheetCtx.mounted) Navigator.pop(sheetCtx);
+      messenger.showSnackBar(
+        SnackBar(content: Text('Lỗi: $e'), backgroundColor: AppTheme.danger),
+      );
+    }
   }
 
   /// Lưu trạng thái mới vào DB rồi yêu cầu màn hình tải lại.
