@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coffee Shop - Quản trị</title>
+<style>
+  /* ===== Bảng màu cà phê - đồng bộ với app Flutter ===== */
+  :root {
+    --primary: #6F4E37;      /* nâu cà phê */
+    --primary-dark: #3E2B1F;
+    --accent: #D9A066;       /* vàng caramel */
+    --bg: #F9F5F0;           /* kem nhạt */
+    --card: #FFFFFF;
+    --text: #2E2420;
+    --text-grey: #9C8F86;
+    --success: #4CAF50;
+    --danger: #E05D5D;
+    --border: #EFE6DC;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+  /* ===== Màn đăng nhập ===== */
+  #login-page {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  }
+  .login-card {
+    background: var(--card); padding: 36px; border-radius: 24px; width: 360px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.25); text-align: center;
+  }
+  .login-card h1 { color: var(--primary); font-size: 26px; margin-bottom: 4px; }
+  .login-card p { color: var(--text-grey); font-size: 14px; margin-bottom: 22px; }
+  .login-card input {
+    width: 100%; padding: 13px 16px; margin-bottom: 12px; font-size: 15px;
+    border: 1px solid var(--border); border-radius: 12px; outline: none;
+  }
+  .login-card input:focus { border-color: var(--primary); }
+
+  /* ===== Khung chính: sidebar + nội dung ===== */
+  #admin-page { display: none; min-height: 100vh; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 230px; background: var(--primary-dark); color: #fff;
+    padding: 24px 14px; flex-shrink: 0;
+  }
+  .sidebar .logo { font-size: 20px; font-weight: bold; padding: 0 10px 22px; color: var(--accent); }
+  .sidebar button {
+    display: block; width: 100%; text-align: left; padding: 13px 14px; margin-bottom: 6px;
+    background: none; border: none; color: #fff; font-size: 15px; border-radius: 12px; cursor: pointer;
+  }
+  .sidebar button:hover { background: rgba(255,255,255,.08); }
+  .sidebar button.active { background: var(--primary); font-weight: bold; }
+  .content { flex: 1; padding: 28px 32px; max-width: 1100px; }
+  .content h2 { margin-bottom: 18px; }
+
+  /* ===== Thẻ số liệu (stat tile) ===== */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .stat {
+    background: var(--card); border-radius: 16px; padding: 16px 18px;
+    box-shadow: 0 4px 14px rgba(62,43,31,.06);
+  }
+  .stat .label { color: var(--text-grey); font-size: 13px; }
+  .stat .value { font-size: 24px; font-weight: bold; margin-top: 4px; }
+
+  /* ===== Thẻ trắng chung ===== */
+  .card {
+    background: var(--card); border-radius: 16px; padding: 20px;
+    box-shadow: 0 4px 14px rgba(62,43,31,.06); margin-bottom: 22px;
+  }
+  .card h3 { font-size: 16px; margin-bottom: 14px; }
+
+  /* ===== Biểu đồ cột doanh thu (thuần CSS) ===== */
+  .chart { display: flex; align-items: flex-end; gap: 14px; height: 200px; padding-top: 10px; }
+  .chart .col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+  .chart .bar {
+    width: 60%; max-width: 46px; background: var(--primary);
+    border-radius: 4px 4px 0 0; min-height: 2px; transition: opacity .15s;
+  }
+  .chart .col:hover .bar { opacity: .8; }
+  .chart .val { font-size: 11px; color: var(--text-grey); margin-bottom: 4px; }
+  .chart .day { font-size: 12px; color: var(--text-grey); margin-top: 6px; }
+
+  /* ===== Top sản phẩm (thanh ngang) ===== */
+  .toprow { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .toprow .name { width: 180px; font-size: 14px; }
+  .toprow .track { flex: 1; background: var(--bg); border-radius: 4px; height: 18px; }
+  .toprow .fill { background: var(--accent); height: 100%; border-radius: 4px; min-width: 2px; }
+  .toprow .qty { width: 60px; font-size: 13px; color: var(--text-grey); }
+
+  /* ===== Bảng dữ liệu ===== */
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { color: var(--text-grey); font-weight: 600; font-size: 13px; }
+  tr:hover td { background: #FDFAF6; }
+  img.thumb { width: 42px; height: 42px; object-fit: cover; border-radius: 8px; background: var(--bg); }
+
+  /* ===== Nút ===== */
+  .btn {
+    padding: 10px 18px; border: none; border-radius: 12px; cursor: pointer;
+    font-size: 14px; font-weight: 600; background: var(--primary); color: #fff;
+  }
+  .btn:hover { opacity: .9; }
+  .btn.small { padding: 6px 12px; font-size: 13px; }
+  .btn.outline { background: none; border: 1px solid var(--primary); color: var(--primary); }
+  .btn.red { background: var(--danger); }
+  .btn.green { background: var(--success); }
+
+  /* ===== Nhãn trạng thái đơn ===== */
+  .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .badge.pending { background: #F6E3CB; color: #A66B22; }
+  .badge.paid { background: #DFF2E0; color: #2E7D32; }
+  .badge.cancel { background: #FADADA; color: #C62828; }
+
+  /* ===== Form thêm/sửa sản phẩm ===== */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-grid label { font-size: 13px; color: var(--text-grey); display: block; margin-bottom: 4px; }
+  .form-grid input, .form-grid select, .form-grid textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px;
+  }
+  .form-grid .full { grid-column: 1 / -1; }
+
+  /* ===== Chat ===== */
+  .chat-layout { display: flex; gap: 16px; height: 480px; }
+  .conv-list { width: 260px; overflow-y: auto; border-right: 1px solid var(--border); padding-right: 12px; }
+  .conv {
+    padding: 12px; border-radius: 12px; cursor: pointer; margin-bottom: 6px;
+  }
+  .conv:hover { background: var(--bg); }
+  .conv.active { background: #F1E5D8; }
+  .conv .who { font-weight: 600; font-size: 14px; }
+  .conv .last { font-size: 12px; color: var(--text-grey); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .thread { flex: 1; display: flex; flex-direction: column; }
+  .msgs { flex: 1; overflow-y: auto; padding: 8px; }
+  .bubble { max-width: 70%; padding: 10px 14px; border-radius: 16px; margin-bottom: 8px; font-size: 14px; }
+  .bubble.user { background: var(--bg); }
+  .bubble.shop { background: var(--primary); color: #fff; margin-left: auto; }
+  .reply-bar { display: flex; gap: 8px; padding-top: 10px; }
+  .reply-bar input { flex: 1; padding: 11px 14px; border: 1px solid var(--border); border-radius: 20px; font-size: 14px; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+  .muted { color: var(--text-grey); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- ============ TRANG ĐĂNG NHẬP ADMIN ============ -->
+<div id="login-page">
+  <div class="login-card">
+    <div style="font-size:44px">☕</div>
+    <h1>Coffee Shop Admin</h1>
+    <p>Đăng nhập trang quản trị cửa hàng</p>
+    <input id="admin-user" placeholder="Tên đăng nhập" value="admin">
+    <input id="admin-pass" type="password" placeholder="Mật khẩu">
+    <button class="btn" style="width:100%" onclick="login()">Đăng nhập</button>
+    <p id="login-err" style="color:var(--danger);margin-top:10px;display:none">Sai tài khoản hoặc mật khẩu!</p>
+  </div>
+</div>
+
+<!-- ============ TRANG QUẢN TRỊ ============ -->
+<div id="admin-page">
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="logo">☕ Coffee Admin</div>
+      <button class="active" onclick="show('dashboard', this)">📊 Thống kê</button>
+      <button onclick="show('products', this)">🧋 Sản phẩm</button>
+      <button onclick="show('orders', this)">🧾 Đơn hàng</button>
+      <button onclick="show('chat', this)">💬 Tin nhắn</button>
+      <button onclick="logout()" style="margin-top:30px;color:#f2b8b8">Đăng xuất</button>
+    </nav>
+
+    <main class="content">
+      <!-- ===== 1. DASHBOARD THỐNG KÊ ===== -->
+      <section id="dashboard" class="section active">
+        <h2>Thống kê cửa hàng</h2>
+        <div class="stats" id="stat-tiles"></div>
+        <div class="card">
+          <h3>Doanh thu 7 ngày gần nhất (đơn đã thanh toán)</h3>
+          <div class="chart" id="revenue-chart"></div>
+        </div>
+        <div class="card">
+          <h3>Top sản phẩm bán chạy</h3>
+          <div id="top-products"></div>
+        </div>
+      </section>
+
+      <!-- ===== 2. CRUD SẢN PHẨM ===== -->
+      <section id="products" class="section">
+        <h2>Quản lý sản phẩm</h2>
+        <div class="card">
+          <h3 id="form-title">Thêm sản phẩm mới</h3>
+          <div class="form-grid">
+            <div><label>Tên sản phẩm</label><input id="p-name"></div>
+            <div><label>Giá (đ)</label><input id="p-price" type="number"></div>
+            <div><label>Loại</label>
+              <select id="p-category">
+                <option>Cà phê</option><option>Trà sữa</option><option>Trà</option>
+                <option>Đá xay</option><option>Nước ép</option><option>Sinh tố</option>
+              </select>
+            </div>
+            <div><label>Ảnh (chọn ảnh có sẵn trong app)</label><select id="p-image"></select></div>
+            <div class="full"><label>Mô tả</label><textarea id="p-desc" rows="2"></textarea></div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <button class="btn" onclick="saveProduct()">💾 Lưu</button>
+            <button class="btn outline" onclick="resetForm()">Nhập lại</button>
+          </div>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Ảnh</th><th>Tên</th><th>Loại</th><th>Giá</th><th></th></tr></thead>
+            <tbody id="product-rows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== 3. QUẢN LÝ ĐƠN HÀNG ===== -->
+      <section id="orders" class="section">
+        <h2>Quản lý đơn hàng</h2>
+        <div class="card">
+          <table>
+            <thead><tr><th>Đơn</th><th>Khách</th><th>Món</th><th>Tổng</th><th>Thanh toán</th><th>Trạng thái</th><th></th></tr></thead>
+            <tbody id="order-rows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== 4. CHAT VỚI KHÁCH ===== -->
+      <section id="chat" class="section">
+        <h2>Tin nhắn khách hàng</h2>
+        <div class="card">
+          <div class="chat-layout">
+            <div class="conv-list" id="conv-list"><p class="muted">Chưa có hội thoại nào</p></div>
+            <div class="thread">
+              <div class="msgs" id="msgs"><p class="muted">Chọn 1 khách hàng để xem tin nhắn</p></div>
+              <div class="reply-bar">
+                <input id="reply-text" placeholder="Nhập tin trả lời khách..."
+                       onkeydown="if(event.key==='Enter')sendReply()">
+                <button class="btn" onclick="sendReply()">Gửi</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+// ================== CẤU HÌNH ==================
+const API = '/api'; // web admin được backend phục vụ nên gọi API cùng nguồn
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = '123456'; // tài khoản quản trị demo
+
+// Định dạng tiền: 50000 -> "50.000đ"
+const vnd = n => n.toLocaleString('vi-VN') + 'đ';
+
+// ================== ĐĂNG NHẬP ==================
+function login() {
+  const u = document.getElementById('admin-user').value.trim();
+  const p = document.getElementById('admin-pass').value;
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    sessionStorage.setItem('admin', '1');
+    enter();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+function logout() { sessionStorage.removeItem('admin'); location.reload(); }
+function enter() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('admin-page').style.display = 'block';
+  loadDashboard(); loadProducts(); loadOrders(); loadConversations();
+}
+if (sessionStorage.getItem('admin')) enter(); // giữ phiên khi F5
+
+// ================== CHUYỂN TAB ==================
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  // Mở tab nào thì tải lại dữ liệu tab đó cho mới nhất.
+  if (id === 'dashboard') loadDashboard();
+  if (id === 'products') loadProducts();
+  if (id === 'orders') loadOrders();
+  if (id === 'chat') loadConversations();
+}
+
+// ================== 1. DASHBOARD ==================
+async function loadDashboard() {
+  const s = await (await fetch(`${API}/admin/stats`)).json();
+
+  // Các ô số liệu.
+  document.getElementById('stat-tiles').innerHTML = `
+    <div class="stat"><div class="label">Doanh thu</div><div class="value" style="color:var(--primary)">${vnd(s.totalRevenue)}</div></div>
+    <div class="stat"><div class="label">Tổng đơn</div><div class="value">${s.totalOrders}</div></div>
+    <div class="stat"><div class="label">Đã thanh toán</div><div class="value" style="color:var(--success)">${s.paidOrders}</div></div>
+    <div class="stat"><div class="label">Chờ thanh toán</div><div class="value" style="color:#A66B22">${s.pendingOrders}</div></div>
+    <div class="stat"><div class="label">Đã hủy</div><div class="value" style="color:var(--danger)">${s.cancelledOrders}</div></div>
+    <div class="stat"><div class="label">Khách hàng</div><div class="value">${s.totalCustomers}</div></div>`;
+
+  // Biểu đồ cột doanh thu 7 ngày: chiều cao cột = doanh thu / max.
+  const max = Math.max(...s.revenueByDay.map(d => d.revenue), 1);
+  document.getElementById('revenue-chart').innerHTML = s.revenueByDay.map(d => `
+    <div class="col" title="${d.date}: ${vnd(d.revenue)}">
+      <div class="val">${d.revenue > 0 ? vnd(d.revenue) : ''}</div>
+      <div class="bar" style="height:${Math.round(d.revenue / max * 100)}%"></div>
+      <div class="day">${d.date}</div>
+    </div>`).join('');
+
+  // Top sản phẩm: thanh ngang, độ dài = số lượng / max.
+  const maxQty = Math.max(...s.topProducts.map(p => p.quantity), 1);
+  document.getElementById('top-products').innerHTML = s.topProducts.length
+    ? s.topProducts.map(p => `
+      <div class="toprow" title="${p.name}: ${p.quantity} ly">
+        <div class="name">${p.name}</div>
+        <div class="track"><div class="fill" style="width:${Math.round(p.quantity / maxQty * 100)}%"></div></div>
+        <div class="qty">${p.quantity} ly</div>
+      </div>`).join('')
+    : '<p class="muted">Chưa có đơn đã thanh toán</p>';
+}
+
+// ================== 2. CRUD SẢN PHẨM ==================
+let editingId = null; // null = đang thêm mới, khác null = đang sửa
+
+async function loadProducts() {
+  const products = await (await fetch(`${API}/products`)).json();
+
+  // Danh sách ảnh có sẵn (lấy từ chính sản phẩm trong DB) cho ô chọn ảnh.
+  const images = [...new Set(products.map(p => p.image))];
+  document.getElementById('p-image').innerHTML =
+    images.map(i => `<option value="${i}">${i.split('/').pop()}</option>`).join('');
+
+  document.getElementById('product-rows').innerHTML = products.map(p => `
+    <tr>
+      <td><img class="thumb" src="/images/${p.image.split('/').pop()}" onerror="this.style.visibility='hidden'"></td>
+      <td><b>${p.name}</b></td>
+      <td>${p.category}</td>
+      <td>${vnd(p.price)}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn small outline" onclick='editProduct(${JSON.stringify(p)})'>✏️ Sửa</button>
+        <button class="btn small red" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">🗑️ Xóa</button>
+      </td>
+    </tr>`).join('');
+}
+
+function editProduct(p) {
+  editingId = p.id;
+  document.getElementById('form-title').textContent = `Sửa sản phẩm #${p.id}`;
+  document.getElementById('p-name').value = p.name;
+  document.getElementById('p-price').value = p.price;
+  document.getElementById('p-category').value = p.category;
+  document.getElementById('p-image').value = p.image;
+  document.getElementById('p-desc').value = p.description;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  editingId = null;
+  document.getElementById('form-title').textContent = 'Thêm sản phẩm mới';
+  ['p-name', 'p-price', 'p-desc'].forEach(id => document.getElementById(id).value = '');
+}
+
+async function saveProduct() {
+  const body = {
+    name: document.getElementById('p-name').value.trim(),
+    price: Number(document.getElementById('p-price').value),
+    category: document.getElementById('p-category').value,
+    image: document.getElementById('p-image').value,
+    description: document.getElementById('p-desc').value.trim(),
+  };
+  if (!body.name || !body.price) { alert('Nhập tên và giá sản phẩm!'); return; }
+
+  // Có editingId -> PUT (sửa), không có -> POST (thêm mới).
+  const url = editingId ? `${API}/products/${editingId}` : `${API}/products`;
+  await fetch(url, {
+    method: editingId ? 'PUT' : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  resetForm();
+  loadProducts();
+}
+
+async function deleteProduct(id, name) {
+  if (!confirm(`Xóa sản phẩm "${name}"?`)) return;
+  await fetch(`${API}/products/${id}`, { method: 'DELETE' });
+  loadProducts();
+}
+
+// ================== 3. ĐƠN HÀNG ==================
+async function loadOrders() {
+  const orders = await (await fetch(`${API}/admin/orders`)).json();
+  const badge = s => s === 'Đã thanh toán' ? 'paid' : s === 'Đã hủy' ? 'cancel' : 'pending';
+  document.getElementById('order-rows').innerHTML = orders.map(o => `
+    <tr>
+      <td><b>#${o.id}</b><br><span class="muted">${new Date(o.createdAt).toLocaleString('vi-VN')}</span></td>
+      <td>${o.customerName}</td>
+      <td>${o.items.map(i => `${i.productName} (${i.size}) x${i.quantity}`).join('<br>')}</td>
+      <td><b>${vnd(o.total)}</b></td>
+      <td>${o.paymentMethod}</td>
+      <td><span class="badge ${badge(o.status)}">${o.status}</span></td>
+      <td style="white-space:nowrap">
+        ${o.status === 'Chờ thanh toán' ? `
+          <button class="btn small green" onclick="setStatus(${o.id}, 'Đã thanh toán')">✔ Thanh toán</button>
+          <button class="btn small red" onclick="setStatus(${o.id}, 'Đã hủy')">✖ Hủy</button>` : ''}
+      </td>
+    </tr>`).join('');
+}
+
+async function setStatus(id, status) {
+  await fetch(`${API}/orders/${id}/status`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  loadOrders();
+  loadDashboard(); // cập nhật luôn số liệu thống kê
+}
+
+// ================== 4. CHAT VỚI KHÁCH ==================
+let currentUserId = null;
+
+async function loadConversations() {
+  const convs = await (await fetch(`${API}/messages/conversations`)).json();
+  document.getElementById('conv-list').innerHTML = convs.length
+    ? convs.map(c => `
+      <div class="conv ${c.userId === currentUserId ? 'active' : ''}" onclick="openThread(${c.userId})">
+        <div class="who">${c.customerName}</div>
+        <div class="last">${c.lastText}</div>
+      </div>`).join('')
+    : '<p class="muted">Chưa có hội thoại nào</p>';
+}
+
+async function openThread(userId) {
+  currentUserId = userId;
+  loadConversations(); // để tô đậm hội thoại đang chọn
+  const msgs = await (await fetch(`${API}/messages?userId=${userId}`)).json();
+  const box = document.getElementById('msgs');
+  box.innerHTML = msgs.map(m =>
+    `<div class="bubble ${m.sender === 'shop' ? 'shop' : 'user'}">${m.text}</div>`).join('');
+  box.scrollTop = box.scrollHeight; // cuộn xuống tin mới nhất
+}
+
+async function sendReply() {
+  const input = document.getElementById('reply-text');
+  const text = input.value.trim();
+  if (!text || !currentUserId) return;
+  input.value = '';
+  await fetch(`${API}/messages/reply`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: currentUserId, text }),
+  });
+  openThread(currentUserId);
+}
+
+// Tự làm mới hội thoại mỗi 5 giây khi đang mở tab chat.
+setInterval(() => {
+  if (document.getElementById('chat').classList.contains('active') && currentUserId) {
+    openThread(currentUserId);
+  }
+}, 5000);
+</script>
+</body>
+</html>
