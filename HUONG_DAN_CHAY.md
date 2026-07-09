@@ -59,6 +59,41 @@ Chọn **máy ảo Android** (hoặc điện thoại thật).
 
 ---
 
+## WEB ADMIN (trang quản trị cho quản lý)
+
+Sau khi backend chạy, mở trình duyệt vào:
+
+```
+http://localhost:5266/admin.html
+```
+
+- **Đăng nhập:** tài khoản `admin` / mật khẩu `123456`.
+- Gồm 4 phần: **Thống kê** (doanh thu 7 ngày, top sản phẩm), **Sản phẩm** (thêm/sửa/xóa - CRUD),
+  **Đơn hàng** (xem tất cả đơn, xác nhận thanh toán/hủy), **Tin nhắn** (trả lời chat của khách,
+  khách thấy ngay trong app).
+
+---
+
+## THANH TOÁN ONLINE VNPay (sandbox - thẻ test, không mất tiền thật)
+
+### Bước 1: Đăng ký tài khoản test VNPay (1 lần, miễn phí)
+1. Vào https://sandbox.vnpayment.vn/devreg/ điền email đăng ký.
+2. VNPay gửi email chứa **Terminal ID (vnp_TmnCode)** và **Secret Key (vnp_HashSecret)**.
+3. Mở `backend/CoffeeShopApi/appsettings.json`, điền 2 giá trị đó vào mục `Vnpay`.
+4. Chạy lại backend.
+
+### Bước 2: Thanh toán trong app
+1. Đặt 1 đơn hàng -> vào mục **Đơn hàng** -> bấm vào đơn "Chờ thanh toán".
+2. Chọn **"Thanh toán online (VNPay)"** -> trình duyệt mở trang VNPay.
+3. Chọn "Thẻ nội địa" -> nhập **thẻ test** của VNPay:
+   - Ngân hàng: **NCB**
+   - Số thẻ: `9704198526191432198`
+   - Tên: `NGUYEN VAN A` - Ngày phát hành: `07/15` - OTP: `123456`
+4. Thanh toán xong VNPay tự gọi về backend -> đơn chuyển **"Đã thanh toán"**.
+   Quay lại app, kéo làm mới danh sách đơn để thấy trạng thái mới.
+
+---
+
 ## Tóm tắt khi DEMO với thầy
 1. Mở SQL Server (đang chạy sẵn dạng dịch vụ).
 2. Chạy backend: `dotnet run` trong thư mục `backend/CoffeeShopApi`.
