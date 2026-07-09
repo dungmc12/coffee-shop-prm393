@@ -1,4 +1,5 @@
 using CoffeeShopApi.Data;
+using CoffeeShopApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,5 +18,43 @@ public class ProductsController : ControllerBase
     {
         var products = await _db.Products.OrderBy(p => p.Id).ToListAsync();
         return Ok(products);
+    }
+
+    // ----- Các API dưới đây dành cho WEB ADMIN (CRUD sản phẩm) -----
+
+    // POST /api/products - thêm sản phẩm mới.
+    [HttpPost]
+    public async Task<IActionResult> Create(Product product)
+    {
+        product.Id = 0; // để SQL Server tự cấp Id
+        _db.Products.Add(product);
+        await _db.SaveChangesAsync();
+        return Ok(product);
+    }
+
+    // PUT /api/products/{id} - sửa sản phẩm.
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, Product product)
+    {
+        var existing = await _db.Products.FindAsync(id);
+        if (existing == null) return NotFound();
+        existing.Name = product.Name;
+        existing.Price = product.Price;
+        existing.Image = product.Image;
+        existing.Category = product.Category;
+        existing.Description = product.Description;
+        await _db.SaveChangesAsync();
+        return Ok(existing);
+    }
+
+    // DELETE /api/products/{id} - xóa sản phẩm.
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var existing = await _db.Products.FindAsync(id);
+        if (existing == null) return NotFound();
+        _db.Products.Remove(existing);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Đã xóa sản phẩm" });
     }
 }

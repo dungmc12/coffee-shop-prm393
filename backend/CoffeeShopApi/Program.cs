@@ -35,6 +35,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+
+// Phục vụ trang WEB ADMIN (file tĩnh trong thư mục wwwroot).
+// Mở http://localhost:5266/admin.html trên trình duyệt để quản lý cửa hàng.
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthorization();
 app.MapControllers();
 

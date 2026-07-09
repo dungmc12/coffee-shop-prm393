@@ -54,6 +54,48 @@ public class MessagesController : ControllerBase
         return Ok(new[] { userMsg, shopMsg });
     }
 
+    // ----- Các API dưới đây dành cho WEB ADMIN (chat 2 chiều với khách) -----
+
+    // GET /api/messages/conversations - danh sách hội thoại (mỗi khách 1 dòng).
+    [HttpGet("conversations")]
+    public async Task<IActionResult> Conversations()
+    {
+        var users = await _db.Users.ToDictionaryAsync(u => u.Id, u => u.Name);
+        var conversations = await _db.Messages
+            .GroupBy(m => m.UserId)
+            .Select(g => new
+            {
+                UserId = g.Key,
+                LastText = g.OrderByDescending(m => m.Id).First().Text,
+                LastAt = g.OrderByDescending(m => m.Id).First().CreatedAt,
+            })
+            .ToListAsync();
+        var result = conversations
+            .OrderByDescending(c => c.LastAt)
+            .Select(c => new
+            {
+                c.UserId, c.LastText, c.LastAt,
+                CustomerName = users.GetValueOrDefault(c.UserId, "Không rõ"),
+            });
+        return Ok(result);
+    }
+
+    // POST /api/messages/reply - quản lý (shop) trả lời khách từ web admin.
+    [HttpPost("reply")]
+    public async Task<IActionResult> Reply(SendMessageDto dto)
+    {
+        var msg = new Message
+        {
+            UserId = dto.UserId,
+            Sender = "shop",
+            Text = dto.Text,
+            CreatedAt = DateTime.Now.ToString("o"),
+        };
+        _db.Messages.Add(msg);
+        await _db.SaveChangesAsync();
+        return Ok(msg);
+    }
+
     // Trả lời tự động theo từ khóa trong tin nhắn của khách.
     private static string AutoReply(string text)
     {
