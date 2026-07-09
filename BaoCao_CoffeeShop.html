@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Báo cáo Coffee Shop</title>
+<style>
+  body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.5; color: #000; }
+  h1 { font-size: 20pt; color: #4A3526; text-align: center; }
+  h2 { font-size: 16pt; color: #6F4E37; border-bottom: 2px solid #D9A066; padding-bottom: 4px; }
+  h3 { font-size: 13pt; color: #6F4E37; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  th, td { border: 1px solid #888; padding: 6px 8px; font-size: 11.5pt; text-align: left; }
+  th { background: #6F4E37; color: #fff; }
+  pre { background: #F7F2EC; border: 1px solid #ccc; padding: 10px; font-family: Consolas, monospace; font-size: 10.5pt; white-space: pre-wrap; }
+  .note { background: #FFF8E7; border-left: 4px solid #D9A066; padding: 8px 12px; font-style: italic; }
+  code { font-family: Consolas, monospace; background: #F0EAE2; padding: 1px 4px; }
+</style>
+</head>
+<body>
+
+<h1>BÁO CÁO KỸ THUẬT<br>Ứng dụng đặt đồ uống "Coffee Shop"</h1>
+<p style="text-align:center"><b>Môn: PRM393 – Mobile Application Development (Flutter)</b></p>
+
+<hr>
+
+<h2>1. Giới thiệu nhóm</h2>
+<p>Nhóm gồm <b>3 thành viên</b>, cùng phát triển một ứng dụng đặt đồ uống trên nền tảng Flutter.</p>
+<table>
+<tr><th>STT</th><th>Họ và tên</th><th>Vai trò / Phụ trách</th><th>Đóng góp</th></tr>
+<tr><td>1</td><td>(Điền tên TV1)</td><td>Module Tài khoản (Auth) – Đăng nhập, Đăng ký, Hồ sơ</td><td>33%</td></tr>
+<tr><td>2</td><td>(Điền tên TV2)</td><td>Module Sản phẩm & Giỏ hàng – Trang chủ, Chi tiết, Giỏ hàng</td><td>33%</td></tr>
+<tr><td>3</td><td>(Điền tên TV3)</td><td>Module Đặt hàng & Tiện ích – Thanh toán, Lịch sử đơn, Bản đồ</td><td>34%</td></tr>
+</table>
+<p>Cả nhóm cùng thống nhất kiến trúc, thiết kế cơ sở dữ liệu và phối hợp tích hợp các module.</p>
+
+<h2>2. Case Study (Mô tả bài toán nghiệp vụ)</h2>
+<p><b>Lĩnh vực:</b> Bán hàng trực tuyến cho cửa hàng đồ uống (Coffee &amp; Tea Shop).</p>
+<p><b>Bối cảnh:</b> Một chuỗi cửa hàng cà phê – trà sữa muốn có một ứng dụng di động giúp khách hàng tự đặt đồ uống mà không cần xếp hàng. Khách có thể:</p>
+<ul>
+<li>Tạo tài khoản, đăng nhập để quản lý thông tin cá nhân.</li>
+<li>Xem menu đồ uống (17 sản phẩm), tìm kiếm và lọc theo loại (Cà phê, Trà, Trà sữa, Đá xay, Sinh tố, Nước ép).</li>
+<li>Xem chi tiết, chọn size (S/M/L) và số lượng, thêm vào giỏ hàng.</li>
+<li>Đặt hàng kèm địa chỉ giao và phương thức thanh toán.</li>
+<li>Xem lại lịch sử các đơn đã đặt.</li>
+<li>Xem vị trí các cửa hàng trên bản đồ.</li>
+</ul>
+<p><b>Lợi ích:</b> Giảm thời gian chờ, tăng trải nghiệm khách hàng, lưu lại lịch sử mua hàng phục vụ chăm sóc khách hàng.</p>
+
+<h2>3. Phân tích nghiệp vụ &amp; Thiết kế hệ thống</h2>
+
+<h3>3.1. Yêu cầu chức năng (Functional Requirements)</h3>
+<ol>
+<li>FR1 – Đăng ký tài khoản mới (lưu vào CSDL).</li>
+<li>FR2 – Đăng nhập / Đăng xuất.</li>
+<li>FR3 – Xem và cập nhật hồ sơ cá nhân, <b>đổi ảnh đại diện bằng ảnh thật (chụp từ máy ảnh hoặc chọn từ thư viện)</b>.</li>
+<li>FR4 – Hiển thị danh sách sản phẩm từ CSDL.</li>
+<li>FR5 – Tìm kiếm và lọc sản phẩm theo loại.</li>
+<li>FR6 – Xem chi tiết sản phẩm, chọn size &amp; số lượng.</li>
+<li>FR7 – Thêm/sửa/xóa sản phẩm trong giỏ hàng, tự tính tổng tiền.</li>
+<li>FR8 – Thanh toán: nhập địa chỉ, chọn phương thức, lưu đơn hàng vào CSDL.</li>
+<li>FR9 – Xem lịch sử đơn hàng và <b>cập nhật trạng thái từng đơn</b> (Chờ thanh toán → Đã thanh toán, hoặc Hủy đơn).</li>
+<li>FR10 – Xem vị trí cửa hàng trên bản đồ.</li>
+</ol>
+
+<h3>3.2. Yêu cầu phi chức năng (Non-functional Requirements)</h3>
+<ul>
+<li>NFR1 – Giao diện thân thiện, đồng bộ (Material Design 3).</li>
+<li>NFR2 – Dữ liệu lưu tập trung trên SQL Server, truy cập qua REST API (kiến trúc client–server).</li>
+<li>NFR3 – Phản hồi nhanh, có hiệu ứng loading khi xử lý.</li>
+<li>NFR4 – Mã nguồn rõ ràng, có comment, dễ bảo trì.</li>
+<li>NFR5 – Kiểm thử tự động bằng Unit Test &amp; Widget Test.</li>
+</ul>
+
+<h3>3.3. Kiến trúc ứng dụng (Architecture)</h3>
+<p>Ứng dụng theo mô hình <b>client–server 3 lớp</b>: Frontend (Flutter) – Backend (.NET Web API) – Database (SQL Server). Frontend quản lý trạng thái bằng <b>Provider</b>.</p>
+<pre>
++----------------------------+        +---------------------------+        +----------------+
+|  FRONTEND (Flutter)        |  HTTP  |  BACKEND (ASP.NET Core)   |  EF    |  DATABASE      |
+|  screens / providers /     | -----> |  Controllers + EF Core    | -----> |  SQL Server    |
+|  ApiService (http)         |  JSON  |  (Auth/Products/Orders)   |  Core  |  CoffeeShopDb  |
++----------------------------+        +---------------------------+        +----------------+
+</pre>
+<ul>
+<li><b>Frontend (Flutter):</b> các màn hình (View) + Provider quản lý trạng thái; lớp <code>ApiService</code> gọi REST API bằng gói <code>http</code>.</li>
+<li><b>Provider (State Management):</b> <code>AuthProvider</code>, <code>ProductProvider</code>, <code>CartProvider</code> kế thừa <code>ChangeNotifier</code>, gọi <code>notifyListeners()</code> để UI build lại.</li>
+<li><b>Backend (ASP.NET Core Web API):</b> các Controller xử lý nghiệp vụ, dùng <b>Entity Framework Core</b> thao tác dữ liệu.</li>
+<li><b>Database (SQL Server):</b> lưu toàn bộ dữ liệu thật (users, products, orders, order_items).</li>
+</ul>
+
+<h3>3.4. Thiết kế cơ sở dữ liệu (SQL Server)</h3>
+<p><b>Bảng <code>users</code></b></p>
+<table>
+<tr><th>Cột</th><th>Kiểu</th><th>Ghi chú</th></tr>
+<tr><td>id</td><td>INT (PK, IDENTITY)</td><td>Khóa chính</td></tr>
+<tr><td>name</td><td>NVARCHAR</td><td>Họ tên</td></tr>
+<tr><td>email</td><td>NVARCHAR (UNIQUE)</td><td>Email (không trùng)</td></tr>
+<tr><td>password</td><td>NVARCHAR</td><td>Mật khẩu</td></tr>
+<tr><td>phone</td><td>NVARCHAR</td><td>Số điện thoại</td></tr>
+<tr><td>address</td><td>NVARCHAR</td><td>Địa chỉ</td></tr>
+<tr><td>avatar</td><td>NVARCHAR</td><td>Đường dẫn ảnh đại diện</td></tr>
+</table>
+<p><b>Bảng <code>products</code></b></p>
+<table>
+<tr><th>Cột</th><th>Kiểu</th><th>Ghi chú</th></tr>
+<tr><td>id</td><td>INT (PK, IDENTITY)</td><td>Khóa chính</td></tr>
+<tr><td>name</td><td>NVARCHAR</td><td>Tên đồ uống</td></tr>
+<tr><td>price</td><td>FLOAT</td><td>Giá gốc</td></tr>
+<tr><td>image</td><td>NVARCHAR</td><td>Biểu tượng/ảnh</td></tr>
+<tr><td>category</td><td>NVARCHAR</td><td>Loại</td></tr>
+<tr><td>description</td><td>NVARCHAR</td><td>Mô tả</td></tr>
+</table>
+<p><b>Bảng <code>orders</code></b></p>
+<table>
+<tr><th>Cột</th><th>Kiểu</th><th>Ghi chú</th></tr>
+<tr><td>id</td><td>INT (PK, IDENTITY)</td><td>Khóa chính</td></tr>
+<tr><td>userId</td><td>INT</td><td>FK → users.id</td></tr>
+<tr><td>total</td><td>FLOAT</td><td>Tổng tiền</td></tr>
+<tr><td>address</td><td>NVARCHAR</td><td>Địa chỉ giao</td></tr>
+<tr><td>paymentMethod</td><td>NVARCHAR</td><td>Phương thức</td></tr>
+<tr><td>status</td><td>NVARCHAR</td><td>Trạng thái (Chờ thanh toán / Đã thanh toán / Đã hủy)</td></tr>
+<tr><td>createdAt</td><td>NVARCHAR</td><td>Thời điểm đặt</td></tr>
+</table>
+<p><b>Bảng <code>order_items</code></b></p>
+<table>
+<tr><th>Cột</th><th>Kiểu</th><th>Ghi chú</th></tr>
+<tr><td>id</td><td>INT (PK, IDENTITY)</td><td>Khóa chính</td></tr>
+<tr><td>orderId</td><td>INT</td><td>FK → orders.id</td></tr>
+<tr><td>productName</td><td>NVARCHAR</td><td>Tên món</td></tr>
+<tr><td>size</td><td>NVARCHAR</td><td>Size đã chọn</td></tr>
+<tr><td>quantity</td><td>INT</td><td>Số lượng</td></tr>
+<tr><td>price</td><td>FLOAT</td><td>Đơn giá khi mua</td></tr>
+</table>
+<p><b>Quan hệ:</b> users 1 — N orders; orders 1 — N order_items.</p>
+
+<h3>3.5. Công nghệ mới tự tìm hiểu (ngoài bài học)</h3>
+<ul>
+<li><b>provider</b> – quản lý trạng thái theo mẫu ChangeNotifier.</li>
+<li><b>flutter_map + OpenStreetMap</b> – hiển thị bản đồ miễn phí, không cần API key (thay cho Google Maps phải tính phí).</li>
+<li><b>intl</b> – định dạng tiền tệ VND và ngày giờ.</li>
+<li><b>image_picker</b> – chọn ảnh từ thư viện hoặc chụp ảnh bằng máy ảnh để làm ảnh đại diện.</li>
+<li><b>path_provider</b> – lấy thư mục riêng của app để lưu ảnh đại diện lâu dài, không bị xóa.</li>
+<li><b>http</b> – gọi REST API (HTTP/JSON) từ Flutter tới backend.</li>
+<li><b>url_launcher</b> – mở Google Maps để chỉ đường tới cửa hàng.</li>
+<li><b>ASP.NET Core Web API (.NET)</b> – xây dựng backend cung cấp REST API.</li>
+<li><b>Entity Framework Core</b> – ORM ánh xạ đối tượng C# sang bảng SQL Server, thao tác dữ liệu không cần viết SQL thủ công.</li>
+</ul>
+
+<h3>3.7. Thiết kế Backend API (.NET)</h3>
+<p>Backend là một dự án <b>ASP.NET Core Web API</b> kết nối SQL Server qua Entity Framework Core, cung cấp các điểm cuối (endpoint):</p>
+<table>
+<tr><th>Phương thức</th><th>Đường dẫn</th><th>Chức năng</th></tr>
+<tr><td>POST</td><td>/api/auth/register</td><td>Đăng ký tài khoản</td></tr>
+<tr><td>POST</td><td>/api/auth/login</td><td>Đăng nhập</td></tr>
+<tr><td>PUT</td><td>/api/auth/{id}</td><td>Cập nhật hồ sơ + avatar</td></tr>
+<tr><td>GET</td><td>/api/products</td><td>Lấy danh sách sản phẩm</td></tr>
+<tr><td>GET</td><td>/api/orders?userId=</td><td>Lịch sử đơn của người dùng</td></tr>
+<tr><td>POST</td><td>/api/orders</td><td>Tạo đơn hàng mới</td></tr>
+<tr><td>PUT</td><td>/api/orders/{id}/status</td><td>Cập nhật trạng thái đơn</td></tr>
+</table>
+<p>App Flutter gọi các endpoint này qua lớp <code>ApiService</code>; dữ liệu trả về dạng JSON và được lưu thật trong SQL Server.</p>
+
+<h3>3.6. Luồng giao diện (UI Flow)</h3>
+<pre>
+Dang nhap --> Trang chu --> Chi tiet SP --> Gio hang --> Thanh toan --> Dat hang thanh cong
+   |             |                                            |
+   v             v                                            v
+Dang ky      Ban do cua hang                            Lich su don hang / Ho so
+</pre>
+
+<h2>4. Yêu cầu phát triển (Development)</h2>
+<ul>
+<li><b>UI Implementation:</b> 9 màn hình theo Material Design 3, theme tông cà phê đồng bộ, sử dụng <b>ảnh thật của đồ uống</b> (đóng gói trong assets để chạy offline) và <b>ảnh đại diện do người dùng tự chọn</b>.</li>
+<li><b>State Management:</b> Provider (3 ChangeNotifier).</li>
+<li><b>Backend &amp; Database:</b> Backend ASP.NET Core Web API + Entity Framework Core, lưu dữ liệu trong <b>SQL Server</b>; Flutter gọi REST API để thao tác dữ liệu thật.</li>
+<li><b>Deployment:</b> Backend chạy bằng <code>dotnet run</code>; app build Release APK bằng <code>flutter build apk --release</code>, chứng minh chạy Release Mode bằng <code>flutter run --release</code>.</li>
+<li><b>Testing:</b>
+  <ul>
+  <li>Unit Test (<code>test/cart_provider_test.dart</code>): kiểm thử logic giỏ hàng.</li>
+  <li>Widget Test (<code>test/widget_test.dart</code>): kiểm thử màn Đăng nhập.</li>
+  <li>Kết quả: <b>7/7 test PASS</b>.</li>
+  </ul>
+</li>
+</ul>
+
+<h2>5. Demo ứng dụng</h2>
+<p class="note">Chèn ảnh chụp màn hình cho từng chức năng vào đây khi làm slide:</p>
+<ol>
+<li>Đăng nhập / Đăng ký</li>
+<li>Trang chủ + tìm kiếm + lọc loại</li>
+<li>Chi tiết sản phẩm (chọn size, số lượng)</li>
+<li>Giỏ hàng (tăng/giảm/xóa, tổng tiền)</li>
+<li>Thanh toán + đặt hàng thành công</li>
+<li>Lịch sử đơn hàng</li>
+<li>Bản đồ cửa hàng</li>
+<li>Hồ sơ + chỉnh sửa + đăng xuất</li>
+<li>Kết quả chạy test (flutter test)</li>
+</ol>
+<p><b>Tài khoản demo:</b> email <code>demo@coffee.com</code> – mật khẩu <code>123456</code>.</p>
+
+<h2>6. Kết luận &amp; Thảo luận</h2>
+<p><b>Ưu điểm:</b></p>
+<ul>
+<li>Đầy đủ luồng mua hàng end-to-end theo kiến trúc client–server (Flutter + .NET + SQL Server).</li>
+<li>Áp dụng đúng Provider cho frontend và Entity Framework Core cho backend; mã nguồn rõ ràng có comment.</li>
+<li>Giao diện đẹp, đồng bộ; dữ liệu lưu tập trung trên SQL Server; có kiểm thử tự động.</li>
+<li>Dùng ảnh thật cho sản phẩm và avatar; bản đồ có chỉ đường tới cửa hàng.</li>
+<li>Menu phong phú (17 sản phẩm, 6 loại); quản lý vòng đời đơn hàng theo trạng thái (Chờ thanh toán / Đã thanh toán / Đã hủy).</li>
+</ul>
+<p><b>Nhược điểm:</b></p>
+<ul>
+<li>Mật khẩu lưu dạng plain text (chưa mã hóa/băm).</li>
+<li>Chưa có xác thực bằng token (JWT); API chưa phân quyền.</li>
+<li>Chưa có vai trò quản trị (admin) để thêm/sửa sản phẩm.</li>
+</ul>
+<p><b>Bài học rút ra:</b></p>
+<ul>
+<li>Hiểu cách quản lý trạng thái bằng Provider và vòng đời widget.</li>
+<li>Biết xây dựng REST API bằng ASP.NET Core + Entity Framework Core và kết nối SQL Server.</li>
+<li>Hiểu cách frontend (Flutter) giao tiếp với backend qua HTTP/JSON.</li>
+<li>Biết viết Unit Test / Widget Test và build APK Release.</li>
+</ul>
+<p><b>Hướng phát triển nếu có thêm thời gian:</b></p>
+<ul>
+<li>Băm mật khẩu (hash) và thêm xác thực JWT cho API.</li>
+<li>Triển khai backend lên server/đám mây (Azure) để dùng từ xa.</li>
+<li>Thêm trang quản trị, thanh toán online thật, thông báo đẩy.</li>
+</ul>
+
+<h2>7. Đánh giá đóng góp thành viên</h2>
+<table>
+<tr><th>Hạng mục</th><th>Tổng</th><th>TV1</th><th>TV2</th><th>TV3</th></tr>
+<tr><td>Case Study Analysis</td><td>100%</td><td>%</td><td>%</td><td>%</td></tr>
+<tr><td>Business analysis</td><td>100%</td><td>%</td><td>%</td><td>%</td></tr>
+<tr><td>System design</td><td>100%</td><td>%</td><td>%</td><td>%</td></tr>
+<tr><td>Implementation</td><td>100%</td><td>%</td><td>%</td><td>%</td></tr>
+<tr><td>Documentation</td><td>100%</td><td>%</td><td>%</td><td>%</td></tr>
+</table>
+<p class="note">Điền tỉ lệ % thực tế của từng thành viên (tổng mỗi hàng = 100%).</p>
+
+</body>
+</html>

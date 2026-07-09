@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Coffee Shop Technical Report</title>
+<style>
+  body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.5; color: #000; }
+  h1 { font-size: 20pt; color: #4A3526; text-align: center; }
+  h2 { font-size: 16pt; color: #6F4E37; border-bottom: 2px solid #D9A066; padding-bottom: 4px; }
+  h3 { font-size: 13pt; color: #6F4E37; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  th, td { border: 1px solid #888; padding: 6px 8px; font-size: 11.5pt; text-align: left; }
+  th { background: #6F4E37; color: #fff; }
+  pre { background: #F7F2EC; border: 1px solid #ccc; padding: 10px; font-family: Consolas, monospace; font-size: 10.5pt; white-space: pre-wrap; }
+  .note { background: #FFF8E7; border-left: 4px solid #D9A066; padding: 8px 12px; font-style: italic; }
+  code { font-family: Consolas, monospace; background: #F0EAE2; padding: 1px 4px; }
+</style>
+</head>
+<body>
+
+<h1>TECHNICAL REPORT<br>"Coffee Shop" Beverage Ordering Application</h1>
+<p style="text-align:center"><b>Course: PRM393 – Mobile Application Development (Flutter)</b></p>
+
+<hr>
+
+<h2>1. Team Introduction</h2>
+<p>The team consists of <b>3 members</b> jointly developing a beverage ordering application on the Flutter platform.</p>
+<table>
+<tr><th>No.</th><th>Full Name</th><th>Role / Responsibility</th><th>Contribution</th></tr>
+<tr><td>1</td><td>(Member 1 name)</td><td>Account module (Auth) – Login, Register, Profile</td><td>33%</td></tr>
+<tr><td>2</td><td>(Member 2 name)</td><td>Product &amp; Cart module – Home, Detail, Cart</td><td>33%</td></tr>
+<tr><td>3</td><td>(Member 3 name)</td><td>Order &amp; Utilities module – Checkout, Order history, Map</td><td>34%</td></tr>
+</table>
+<p>All members jointly agreed on the architecture, designed the database, and collaborated to integrate the modules.</p>
+
+<h2>2. Case Study</h2>
+<p><b>Domain:</b> Online sales for a beverage shop (Coffee &amp; Tea Shop).</p>
+<p><b>Context:</b> A chain of coffee and milk-tea shops wants a mobile application that lets customers order drinks by themselves without queuing. Customers can:</p>
+<ul>
+<li>Create an account and log in to manage personal information.</li>
+<li>Browse the drink menu (17 products), search and filter by category (Coffee, Tea, Milk Tea, Blended, Smoothie, Juice).</li>
+<li>View product details, choose size (S/M/L) and quantity, and add to the cart.</li>
+<li>Place an order with a delivery address and payment method.</li>
+<li>Review the history of placed orders.</li>
+<li>View the locations of the shops on a map.</li>
+</ul>
+<p><b>Benefits:</b> Reduced waiting time, improved customer experience, and stored purchase history for customer care.</p>
+
+<h2>3. Business Analysis &amp; System Design</h2>
+
+<h3>3.1. Functional Requirements</h3>
+<ol>
+<li>FR1 – Register a new account (stored in the database).</li>
+<li>FR2 – Log in / Log out.</li>
+<li>FR3 – View and update the personal profile, <b>change the avatar with a real photo (taken from the camera or chosen from the gallery)</b>.</li>
+<li>FR4 – Display the product list from the database.</li>
+<li>FR5 – Search and filter products by category.</li>
+<li>FR6 – View product details, choose size &amp; quantity.</li>
+<li>FR7 – Add/edit/remove products in the cart, automatically compute the total.</li>
+<li>FR8 – Checkout: enter address, choose payment method, save the order to the database.</li>
+<li>FR9 – View order history and <b>update each order's status</b> (Pending payment → Paid, or Cancel order).</li>
+<li>FR10 – View shop locations on a map.</li>
+</ol>
+
+<h3>3.2. Non-functional Requirements</h3>
+<ul>
+<li>NFR1 – Friendly, consistent UI (Material Design 3).</li>
+<li>NFR2 – Data stored centrally on SQL Server, accessed via a REST API (client–server architecture).</li>
+<li>NFR3 – Fast response, with loading indicators while processing.</li>
+<li>NFR4 – Clean, commented, maintainable source code.</li>
+<li>NFR5 – Automated testing with Unit Test &amp; Widget Test.</li>
+</ul>
+
+<h3>3.3. Application Architecture</h3>
+<p>The application follows a <b>3-tier client–server</b> model: Frontend (Flutter) – Backend (.NET Web API) – Database (SQL Server). The frontend manages state with <b>Provider</b>.</p>
+<pre>
++----------------------------+        +---------------------------+        +----------------+
+|  FRONTEND (Flutter)        |  HTTP  |  BACKEND (ASP.NET Core)   |  EF    |  DATABASE      |
+|  screens / providers /     | -----> |  Controllers + EF Core    | -----> |  SQL Server    |
+|  ApiService (http)         |  JSON  |  (Auth/Products/Orders)   |  Core  |  CoffeeShopDb  |
++----------------------------+        +---------------------------+        +----------------+
+</pre>
+<ul>
+<li><b>Frontend (Flutter):</b> UI screens + Provider for state; an <code>ApiService</code> layer calls the REST API using the <code>http</code> package.</li>
+<li><b>Provider (State Management):</b> <code>AuthProvider</code>, <code>ProductProvider</code>, <code>CartProvider</code> extend <code>ChangeNotifier</code> and call <code>notifyListeners()</code> to trigger UI rebuilds.</li>
+<li><b>Backend (ASP.NET Core Web API):</b> Controllers handle business logic and use <b>Entity Framework Core</b> for data access.</li>
+<li><b>Database (SQL Server):</b> stores all real data (users, products, orders, order_items).</li>
+</ul>
+
+<h3>3.4. Database Design (SQL Server)</h3>
+<p><b>Table <code>users</code></b></p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Note</th></tr>
+<tr><td>id</td><td>INT (PK, IDENTITY)</td><td>Primary key</td></tr>
+<tr><td>name</td><td>NVARCHAR</td><td>Full name</td></tr>
+<tr><td>email</td><td>NVARCHAR (UNIQUE)</td><td>Email (unique)</td></tr>
+<tr><td>password</td><td>NVARCHAR</td><td>Password</td></tr>
+<tr><td>phone</td><td>NVARCHAR</td><td>Phone number</td></tr>
+<tr><td>address</td><td>NVARCHAR</td><td>Address</td></tr>
+<tr><td>avatar</td><td>NVARCHAR</td><td>Avatar image path</td></tr>
+</table>
+<p><b>Table <code>products</code></b></p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Note</th></tr>
+<tr><td>id</td><td>INT (PK, IDENTITY)</td><td>Primary key</td></tr>
+<tr><td>name</td><td>NVARCHAR</td><td>Drink name</td></tr>
+<tr><td>price</td><td>FLOAT</td><td>Base price</td></tr>
+<tr><td>image</td><td>NVARCHAR</td><td>Icon/image</td></tr>
+<tr><td>category</td><td>NVARCHAR</td><td>Category</td></tr>
+<tr><td>description</td><td>NVARCHAR</td><td>Description</td></tr>
+</table>
+<p><b>Table <code>orders</code></b></p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Note</th></tr>
+<tr><td>id</td><td>INT (PK, IDENTITY)</td><td>Primary key</td></tr>
+<tr><td>userId</td><td>INT</td><td>FK → users.id</td></tr>
+<tr><td>total</td><td>FLOAT</td><td>Total amount</td></tr>
+<tr><td>address</td><td>NVARCHAR</td><td>Delivery address</td></tr>
+<tr><td>paymentMethod</td><td>NVARCHAR</td><td>Payment method</td></tr>
+<tr><td>status</td><td>NVARCHAR</td><td>Status (Pending payment / Paid / Cancelled)</td></tr>
+<tr><td>createdAt</td><td>NVARCHAR</td><td>Order time</td></tr>
+</table>
+<p><b>Table <code>order_items</code></b></p>
+<table>
+<tr><th>Column</th><th>Type</th><th>Note</th></tr>
+<tr><td>id</td><td>INT (PK, IDENTITY)</td><td>Primary key</td></tr>
+<tr><td>orderId</td><td>INT</td><td>FK → orders.id</td></tr>
+<tr><td>productName</td><td>NVARCHAR</td><td>Item name</td></tr>
+<tr><td>size</td><td>NVARCHAR</td><td>Chosen size</td></tr>
+<tr><td>quantity</td><td>INT</td><td>Quantity</td></tr>
+<tr><td>price</td><td>FLOAT</td><td>Unit price at purchase</td></tr>
+</table>
+<p><b>Relationships:</b> users 1 — N orders; orders 1 — N order_items.</p>
+
+<h3>3.5. New Technologies Learned (outside class)</h3>
+<ul>
+<li><b>provider</b> – state management using the ChangeNotifier pattern.</li>
+<li><b>flutter_map + OpenStreetMap</b> – displays a free map with no API key required (instead of paid Google Maps).</li>
+<li><b>intl</b> – formats currency (VND) and date/time.</li>
+<li><b>image_picker</b> – picks an image from the gallery or takes a photo with the camera to use as an avatar.</li>
+<li><b>path_provider</b> – locates the app's private directory to persist the avatar image so it is not deleted.</li>
+<li><b>http</b> – calls the REST API (HTTP/JSON) from Flutter to the backend.</li>
+<li><b>url_launcher</b> – opens Google Maps to get directions to a shop.</li>
+<li><b>ASP.NET Core Web API (.NET)</b> – builds the backend that exposes the REST API.</li>
+<li><b>Entity Framework Core</b> – an ORM that maps C# objects to SQL Server tables, handling data without writing manual SQL.</li>
+</ul>
+
+<h3>3.7. Backend API Design (.NET)</h3>
+<p>The backend is an <b>ASP.NET Core Web API</b> project connected to SQL Server through Entity Framework Core, exposing the following endpoints:</p>
+<table>
+<tr><th>Method</th><th>Route</th><th>Function</th></tr>
+<tr><td>POST</td><td>/api/auth/register</td><td>Register an account</td></tr>
+<tr><td>POST</td><td>/api/auth/login</td><td>Log in</td></tr>
+<tr><td>PUT</td><td>/api/auth/{id}</td><td>Update profile + avatar</td></tr>
+<tr><td>GET</td><td>/api/products</td><td>Get the product list</td></tr>
+<tr><td>GET</td><td>/api/orders?userId=</td><td>A user's order history</td></tr>
+<tr><td>POST</td><td>/api/orders</td><td>Create a new order</td></tr>
+<tr><td>PUT</td><td>/api/orders/{id}/status</td><td>Update an order's status</td></tr>
+</table>
+<p>The Flutter app calls these endpoints through the <code>ApiService</code> class; responses are JSON and the data is stored for real in SQL Server.</p>
+
+<h3>3.6. UI Flow</h3>
+<pre>
+Login --> Home --> Product Detail --> Cart --> Checkout --> Order Success
+   |        |                                      |
+   v        v                                      v
+Register  Store Map                          Order History / Profile
+</pre>
+
+<h2>4. Development Requirements</h2>
+<ul>
+<li><b>UI Implementation:</b> 9 screens using Material Design 3 with a consistent coffee-toned theme, using <b>real product photos</b> and a <b>user-selected avatar photo</b>.</li>
+<li><b>State Management:</b> Provider (3 ChangeNotifiers).</li>
+<li><b>Backend &amp; Database:</b> ASP.NET Core Web API + Entity Framework Core, storing data in <b>SQL Server</b>; Flutter calls the REST API to work with real data.</li>
+<li><b>Deployment:</b> Run the backend with <code>dotnet run</code>; build the Release APK with <code>flutter build apk --release</code> and prove Release Mode with <code>flutter run --release</code>.</li>
+<li><b>Testing:</b>
+  <ul>
+  <li>Unit Test (<code>test/cart_provider_test.dart</code>): tests the cart business logic.</li>
+  <li>Widget Test (<code>test/widget_test.dart</code>): tests the Login screen.</li>
+  <li>Result: <b>7/7 tests PASSED</b>.</li>
+  </ul>
+</li>
+</ul>
+
+<h2>5. Application Demo</h2>
+<p class="note">Insert screenshots for each feature here when preparing the slides:</p>
+<ol>
+<li>Login / Register</li>
+<li>Home + search + category filter</li>
+<li>Product detail (choose size, quantity)</li>
+<li>Cart (increase/decrease/remove, total)</li>
+<li>Checkout + order success</li>
+<li>Order history</li>
+<li>Store map</li>
+<li>Profile + edit + logout</li>
+<li>Test results (flutter test)</li>
+</ol>
+<p><b>Demo account:</b> email <code>demo@coffee.com</code> – password <code>123456</code>.</p>
+
+<h2>6. Conclusion &amp; Discussion</h2>
+<p><b>Strengths:</b></p>
+<ul>
+<li>Complete end-to-end purchase flow with a client–server architecture (Flutter + .NET + SQL Server).</li>
+<li>Correctly applies Provider on the frontend and Entity Framework Core on the backend; clean, commented code.</li>
+<li>Beautiful, consistent UI; data stored centrally on SQL Server; includes automated testing.</li>
+<li>Uses real photos for products and avatars; the map provides directions to shops.</li>
+<li>Rich menu (17 products, 6 categories); manages the order lifecycle by status (Pending payment / Paid / Cancelled).</li>
+</ul>
+<p><b>Weaknesses:</b></p>
+<ul>
+<li>Passwords are stored as plain text (not hashed).</li>
+<li>No token-based authentication (JWT); the API has no authorization yet.</li>
+<li>No admin role to add/edit products.</li>
+</ul>
+<p><b>Lessons learned:</b></p>
+<ul>
+<li>Understanding state management with Provider and the widget lifecycle.</li>
+<li>Building a REST API with ASP.NET Core + Entity Framework Core connected to SQL Server.</li>
+<li>How a Flutter frontend communicates with a backend over HTTP/JSON.</li>
+<li>Writing Unit Tests / Widget Tests and building a Release APK.</li>
+</ul>
+<p><b>Future improvements (with more time):</b></p>
+<ul>
+<li>Hash passwords and add JWT authentication for the API.</li>
+<li>Deploy the backend to a server/cloud (Azure) for remote access.</li>
+<li>Add an admin page, real online payment, and push notifications.</li>
+</ul>
+
+<h2>7. Member Contribution</h2>
+<table>
+<tr><th>Task</th><th>Total</th><th>Member 1</th><th>Member 2</th><th>Member 3</th></tr>
+<tr><td>Case Study Analysis</td><td>100%</td><td>%</td><td>%</td><td>%</td></tr>
+<tr><td>Business analysis</td><td>100%</td><td>%</td><td>%</td><td>%</td></tr>
+<tr><td>System design</td><td>100%</td><td>%</td><td>%</td><td>%</td></tr>
+<tr><td>Implementation</td><td>100%</td><td>%</td><td>%</td><td>%</td></tr>
+<tr><td>Documentation</td><td>100%</td><td>%</td><td>%</td><td>%</td></tr>
+</table>
+<p class="note">Fill in each member's actual percentage (each row must total 100%).</p>
+
+</body>
+</html>
