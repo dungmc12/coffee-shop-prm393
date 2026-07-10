@@ -26,7 +26,9 @@ public class AuthController : ControllerBase
         {
             Name = dto.Name,
             Email = dto.Email,
-            Password = dto.Password,
+            // Băm (hash) mật khẩu bằng BCrypt trước khi lưu -> database KHÔNG
+            // lưu mật khẩu thật. Kể cả bị lộ database cũng không đọc được mật khẩu.
+            Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Phone = dto.Phone
         };
         _db.Users.Add(user);
@@ -38,11 +40,27 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto dto)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(
-            u => u.Email == dto.Email && u.Password == dto.Password);
-        if (user == null)
+        // Tìm theo email trước, rồi mới kiểm tra mật khẩu (vì mật khẩu đã bị băm,
+        // không so sánh trực tiếp trong câu truy vấn được).
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+        if (user == null || !VerifyPassword(dto.Password, user))
             return Unauthorized(new { message = "Email hoặc mật khẩu không đúng" });
         return Ok(user);
+    }
+
+    // Kiểm tra mật khẩu. Xử lý được cả 2 trường hợp:
+    //  - Mật khẩu đã băm (BCrypt bắt đầu bằng "$2"): so bằng BCrypt.Verify.
+    //  - Mật khẩu cũ còn lưu dạng thường: so trực tiếp, nếu đúng thì TỰ NÂNG CẤP
+    //    thành bản băm và lưu lại (nên các tài khoản cũ tự an toàn dần).
+    private bool VerifyPassword(string input, User user)
+    {
+        if (user.Password.StartsWith("$2"))
+            return BCrypt.Net.BCrypt.Verify(input, user.Password);
+
+        if (input != user.Password) return false;
+        user.Password = BCrypt.Net.BCrypt.HashPassword(input); // nâng cấp
+        _db.SaveChanges();
+        return true;
     }
 
     // PUT /api/auth/{id} - cập nhật hồ sơ (tên, sđt, địa chỉ, avatar).
