@@ -105,6 +105,18 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () => _showChangePasswordDialog(context),
+            icon: const Icon(Iconsax.lock_1, size: 20),
+            label: const Text('Đổi mật khẩu'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(52),
+              foregroundColor: AppTheme.primary,
+              side: const BorderSide(color: AppTheme.primary),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+          ),
+          const SizedBox(height: 12),
           ElevatedButton.icon(
             onPressed: () {
               // Đăng xuất: xóa giỏ + thoát phiên đăng nhập.
@@ -182,6 +194,82 @@ class ProfileScreen extends StatelessWidget {
         leading: Icon(icon, color: AppTheme.primary),
         title: Text(label, style: const TextStyle(color: AppTheme.textGrey, fontSize: 13)),
         subtitle: Text(value, style: const TextStyle(fontSize: 16, color: AppTheme.textDark)),
+      ),
+    );
+  }
+
+  /// Hộp thoại đổi mật khẩu: nhập mật khẩu cũ + mật khẩu mới.
+  void _showChangePasswordDialog(BuildContext context) {
+    final auth = context.read<AuthProvider>();
+    final oldCtrl = TextEditingController();
+    final newCtrl = TextEditingController();
+    final confirmCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Đổi mật khẩu'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: oldCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Mật khẩu hiện tại'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: newCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Mật khẩu mới'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: confirmCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Nhập lại mật khẩu mới'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final messenger = ScaffoldMessenger.of(ctx);
+              // Kiểm tra sơ bộ trước khi gọi server.
+              if (newCtrl.text.length < 6) {
+                messenger.showSnackBar(const SnackBar(
+                  content: Text('Mật khẩu mới tối thiểu 6 ký tự'),
+                  backgroundColor: AppTheme.danger));
+                return;
+              }
+              if (newCtrl.text != confirmCtrl.text) {
+                messenger.showSnackBar(const SnackBar(
+                  content: Text('Mật khẩu nhập lại không khớp'),
+                  backgroundColor: AppTheme.danger));
+                return;
+              }
+              // Gọi API đổi mật khẩu; trả về null nếu thành công.
+              final error = await auth.changePassword(oldCtrl.text, newCtrl.text);
+              if (error != null) {
+                messenger.showSnackBar(SnackBar(
+                  content: Text(error), backgroundColor: AppTheme.danger));
+                return;
+              }
+              if (ctx.mounted) Navigator.pop(ctx);
+              messenger.showSnackBar(const SnackBar(
+                content: Text('Đổi mật khẩu thành công'),
+                backgroundColor: AppTheme.success));
+            },
+            style: ElevatedButton.styleFrom(minimumSize: const Size(90, 44)),
+            child: const Text('Lưu'),
+          ),
+        ],
       ),
     );
   }

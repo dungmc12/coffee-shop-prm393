@@ -58,6 +58,19 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Đổi mật khẩu (đang đăng nhập). Trả về null nếu OK, hoặc chuỗi lỗi.
+  Future<String?> changePassword(String oldPassword, String newPassword) async {
+    if (_currentUser == null) return 'Chưa đăng nhập';
+    try {
+      await _api.changePassword(_currentUser!.id!, oldPassword, newPassword);
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (_) {
+      return 'Không kết nối được máy chủ. Kiểm tra backend đã chạy chưa.';
+    }
+  }
+
   /// Đăng xuất.
   void logout() {
     _currentUser = null;

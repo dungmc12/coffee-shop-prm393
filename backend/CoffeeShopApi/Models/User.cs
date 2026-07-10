@@ -10,4 +10,9 @@ public class User
     public string Phone { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string Avatar { get; set; } = string.Empty;
+
+    // Số lần nhập sai mật khẩu liên tiếp. Đủ 5 lần thì khóa tài khoản.
+    public int FailedLoginCount { get; set; }
+    // Tài khoản có đang bị khóa không (phải đặt lại mật khẩu để mở).
+    public bool IsLocked { get; set; }
 }

@@ -95,6 +95,30 @@ class ApiService {
     throw ApiException(_error(res, 'Cập nhật hồ sơ thất bại'));
   }
 
+  /// Đổi mật khẩu khi đang đăng nhập (cần mật khẩu cũ).
+  Future<void> changePassword(int userId, String oldPassword, String newPassword) async {
+    final res = await http
+        .put(
+          Uri.parse('$baseUrl/auth/$userId/password'),
+          headers: _headers,
+          body: jsonEncode({'oldPassword': oldPassword, 'newPassword': newPassword}),
+        )
+        .timeout(_timeout);
+    if (res.statusCode != 200) throw ApiException(_error(res, 'Đổi mật khẩu thất bại'));
+  }
+
+  /// Quên mật khẩu: xác minh email + số điện thoại rồi đặt mật khẩu mới.
+  Future<void> resetPassword(String email, String phone, String newPassword) async {
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/auth/reset'),
+          headers: _headers,
+          body: jsonEncode({'email': email, 'phone': phone, 'newPassword': newPassword}),
+        )
+        .timeout(_timeout);
+    if (res.statusCode != 200) throw ApiException(_error(res, 'Đặt lại mật khẩu thất bại'));
+  }
+
   // ===================== PRODUCTS =====================
 
   Future<List<Product>> getProducts() async {

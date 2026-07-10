@@ -20,3 +20,9 @@ public record CreateOrderDto(
 public record UpdateStatusDto(string Status);
 
 public record SendMessageDto(int UserId, string Text);
+
+// Đổi mật khẩu khi đang đăng nhập (cần biết mật khẩu cũ).
+public record ChangePasswordDto(string OldPassword, string NewPassword);
+
+// Đặt lại mật khẩu khi quên (xác minh bằng email + số điện thoại đã đăng ký).
+public record ResetPasswordDto(string Email, string Phone, string NewPassword);

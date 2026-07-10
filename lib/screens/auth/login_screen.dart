@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/validators.dart';
+import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 
 /// Màn hình Đăng nhập (Thành viên 1).
@@ -138,7 +139,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           validator: Validators.password,
                         ),
-                        const SizedBox(height: 24),
+                        // Quên mật khẩu -> mở màn đặt lại.
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const ForgotPasswordScreen()),
+                              );
+                            },
+                            child: const Text('Quên mật khẩu?'),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: _loading ? null : _submit,
                           child: _loading
