@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
@@ -23,15 +25,23 @@ class _ChatScreenState extends State<ChatScreen> {
   List<Message> _messages = [];
   bool _loading = true;
   bool _sending = false;
+  // Bộ đếm giờ tự kiểm tra tin mới (để tin admin trả lời hiện ngay).
+  Timer? _pollTimer;
 
   @override
   void initState() {
     super.initState();
     _loadMessages();
+    // Cứ 3 giây hỏi server xem có tin mới không -> chat gần như thời gian thực.
+    _pollTimer = Timer.periodic(
+      const Duration(seconds: 3),
+      (_) => _pollNewMessages(),
+    );
   }
 
   @override
   void dispose() {
+    _pollTimer?.cancel(); // dừng hỏi khi rời màn chat
     _textCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
@@ -51,6 +61,20 @@ class _ChatScreenState extends State<ChatScreen> {
       _scrollToBottom();
     } catch (_) {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  /// Kiểm tra tin mới định kỳ. Chỉ cập nhật khi số tin thay đổi để
+  /// không vẽ lại liên tục (vd admin vừa trả lời từ web).
+  Future<void> _pollNewMessages() async {
+    if (_sending) return; // đang gửi thì bỏ qua lượt này
+    try {
+      final messages = await ApiService.instance.getMessages(_userId);
+      if (!mounted || messages.length == _messages.length) return;
+      setState(() => _messages = messages);
+      _scrollToBottom();
+    } catch (_) {
+      // Lỗi mạng tạm thời thì bỏ qua, lượt sau thử lại.
     }
   }
 
