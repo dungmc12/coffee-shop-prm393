@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+
+import '../payment/payment_webview_screen.dart';
 
 import '../../models/order.dart';
 import '../../services/api_service.dart';
@@ -252,26 +253,17 @@ class _OrderCard extends StatelessWidget {
     );
   }
 
-  /// Thanh toán online: mở trang cổng thanh toán trên trình duyệt.
-  /// Thanh toán xong, backend tự cập nhật đơn "Đã thanh toán".
+  /// Thanh toán online: mở trang cổng thanh toán NGAY TRONG APP (WebView).
+  /// Thanh toán xong backend cập nhật đơn "Đã thanh toán"; WebView đóng lại
+  /// và trả về true -> màn Đơn hàng tự tải lại danh sách.
   Future<void> _payOnline(BuildContext sheetCtx) async {
-    final messenger = ScaffoldMessenger.of(sheetCtx);
-    try {
-      final url = ApiService.instance.getMockPayUrl(order.id!);
-      if (sheetCtx.mounted) Navigator.pop(sheetCtx);
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Thanh toán xong hãy quay lại và kéo làm mới danh sách đơn'),
-          duration: Duration(seconds: 4),
-        ),
-      );
-    } catch (e) {
-      if (sheetCtx.mounted) Navigator.pop(sheetCtx);
-      messenger.showSnackBar(
-        SnackBar(content: Text('Lỗi: $e'), backgroundColor: AppTheme.danger),
-      );
-    }
+    final url = ApiService.instance.getMockPayUrl(order.id!);
+    final navigator = Navigator.of(sheetCtx);
+    navigator.pop(); // đóng bottom sheet
+    final paid = await navigator.push<bool>(
+      MaterialPageRoute(builder: (_) => PaymentWebViewScreen(url: url)),
+    );
+    if (paid == true) onChanged(); // tải lại đơn để thấy trạng thái mới
   }
 
   /// Lưu trạng thái mới vào DB rồi yêu cầu màn hình tải lại.

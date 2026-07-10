@@ -56,6 +56,8 @@ dependencies:
   iconsax_flutter: ^1.0.0
   # Font chữ Google Fonts (Be Vietnam Pro - hỗ trợ tiếng Việt đẹp)
   google_fonts: ^6.2.1
+  # Mở trang thanh toán ngay trong app (không cần trình duyệt ngoài)
+  webview_flutter: ^4.9.0
 
 dev_dependencies:
   flutter_test:
