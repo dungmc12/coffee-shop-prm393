@@ -405,7 +405,7 @@ async function loadOrders() {
       <td><span class="badge ${badge(o.status)}">${o.status}</span></td>
       <td style="white-space:nowrap">
         ${o.status === 'Chờ thanh toán' ? `
-          <button class="btn small green" onclick="setStatus(${o.id}, 'Đã thanh toán')">✔ Thanh toán</button>
+          <button class="btn small green" onclick="setStatus(${o.id}, 'Đã thanh toán')" title="Xác nhận đã nhận tiền (tiền mặt)">✔ Xác nhận đã trả</button>
           <button class="btn small red" onclick="setStatus(${o.id}, 'Đã hủy')">✖ Hủy</button>` : ''}
       </td>
     </tr>`).join('');

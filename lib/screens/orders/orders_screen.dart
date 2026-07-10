@@ -221,19 +221,31 @@ class _OrderCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
             if (canAct) ...[
-              // Thanh toán ONLINE: mở trang cổng thanh toán trên trình duyệt.
+              // Thanh toán ONLINE: mở cổng thanh toán -> tự động "Đã thanh toán".
               ListTile(
                 leading: const Icon(Iconsax.card, color: Color(0xFF1A73E8)),
-                title: const Text('Thanh toán online'),
+                title: const Text('Thanh toán online ngay'),
                 subtitle: const Text('Mở cổng thanh toán (thẻ ngân hàng)',
                     style: TextStyle(fontSize: 12)),
                 onTap: () => _payOnline(sheetCtx),
               ),
-              // Thanh toán khi nhận hàng: chỉ đổi trạng thái trong hệ thống.
-              ListTile(
-                leading: const Icon(Iconsax.card_tick, color: AppTheme.success),
-                title: const Text('Đã thanh toán tiền mặt'),
-                onTap: () => _updateStatus(sheetCtx, 'Đã thanh toán'),
+              // TIỀN MẶT: người dùng KHÔNG tự xác nhận được. Nhân viên (admin)
+              // sẽ xác nhận trên web quản lý khi nhận đủ tiền -> đơn tự chuyển
+              // sang "Đã thanh toán". Tránh việc khách tự đánh dấu đã trả.
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 6, 16, 10),
+                child: Row(
+                  children: [
+                    Icon(Iconsax.info_circle, size: 16, color: AppTheme.textGrey),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Nếu trả tiền mặt, nhân viên sẽ xác nhận sau khi nhận đủ tiền.',
+                        style: TextStyle(fontSize: 12, color: AppTheme.textGrey),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               ListTile(
                 leading: const Icon(Iconsax.close_circle, color: AppTheme.danger),
