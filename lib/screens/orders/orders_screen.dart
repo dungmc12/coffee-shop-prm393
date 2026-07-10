@@ -220,13 +220,13 @@ class _OrderCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
             if (canAct) ...[
-              // Thanh toán ONLINE thật qua cổng VNPay (sandbox).
+              // Thanh toán ONLINE: mở trang cổng thanh toán trên trình duyệt.
               ListTile(
                 leading: const Icon(Iconsax.card, color: Color(0xFF1A73E8)),
-                title: const Text('Thanh toán online (VNPay)'),
-                subtitle: const Text('Mở trang thanh toán VNPay',
+                title: const Text('Thanh toán online'),
+                subtitle: const Text('Mở cổng thanh toán (thẻ ngân hàng)',
                     style: TextStyle(fontSize: 12)),
-                onTap: () => _payWithVnpay(sheetCtx),
+                onTap: () => _payOnline(sheetCtx),
               ),
               // Thanh toán khi nhận hàng: chỉ đổi trạng thái trong hệ thống.
               ListTile(
@@ -252,12 +252,12 @@ class _OrderCard extends StatelessWidget {
     );
   }
 
-  /// Thanh toán online: lấy link VNPay từ backend rồi mở bằng trình duyệt.
-  /// Thanh toán xong, VNPay tự gọi về backend cập nhật đơn "Đã thanh toán".
-  Future<void> _payWithVnpay(BuildContext sheetCtx) async {
+  /// Thanh toán online: mở trang cổng thanh toán trên trình duyệt.
+  /// Thanh toán xong, backend tự cập nhật đơn "Đã thanh toán".
+  Future<void> _payOnline(BuildContext sheetCtx) async {
     final messenger = ScaffoldMessenger.of(sheetCtx);
     try {
-      final url = await ApiService.instance.getVnpayUrl(order.id!);
+      final url = ApiService.instance.getMockPayUrl(order.id!);
       if (sheetCtx.mounted) Navigator.pop(sheetCtx);
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
       messenger.showSnackBar(

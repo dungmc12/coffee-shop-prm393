@@ -173,6 +173,10 @@ class ApiService {
     throw ApiException(_error(res, 'Không tạo được link thanh toán'));
   }
 
+  /// Link trang thanh toán mô phỏng (dùng khi chưa có key VNPay sandbox).
+  /// Không cần gọi API trước - mở thẳng trang thanh toán trên backend.
+  String getMockPayUrl(int orderId) => '$baseUrl/payments/mock?orderId=$orderId';
+
   // ===================== MESSAGES (CHAT) =====================
 
   /// Lấy toàn bộ đoạn chat của user (cũ -> mới).
