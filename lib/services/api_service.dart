@@ -25,8 +25,9 @@ class ApiService {
   static final ApiService instance = ApiService._();
 
   // Địa chỉ backend.
-  //  - Máy ảo Android: 10.0.2.2 trỏ về "localhost" của máy tính.
-  //  - Máy thật: thay bằng IP LAN của máy chạy backend (vd 192.168.1.5).
+  //  - Máy ẢO Android (đang dùng để demo): 10.0.2.2 = localhost của máy tính.
+  //  - Điện thoại thật nối HOTSPOT máy tính: đổi sang 192.168.137.1.
+  //  - Điện thoại cùng WiFi thường: đổi sang IP LAN (chạy `ipconfig` xem IPv4).
   static const String baseUrl = 'http://10.0.2.2:5266/api';
 
   final _headers = {'Content-Type': 'application/json; charset=utf-8'};
