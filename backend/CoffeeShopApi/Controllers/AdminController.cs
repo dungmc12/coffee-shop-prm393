@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CoffeeShopApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")] // -> /api/adminn
+[Route("api/[controller]")] // -> /api/admin
 public class AdminController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -30,7 +30,7 @@ public class AdminController : ControllerBase
         return Ok(result);
     }
 
-    // GET /api/admin/stats - số liệu thống kê quan trọng cho người quản lý.
+    // GET /api/admin/stats - Số liệu thống kê quan trọng cho người quản lý.
     [HttpGet("stats")]
     public async Task<IActionResult> Stats()
     {
@@ -50,7 +50,7 @@ public class AdminController : ControllerBase
             })
             .ToList();
 
-        // Top 5 sản phẩm bán chạy (theo số ly đã bán trong đơn đã thanh toán).
+        // Top 5 sản phẩm bán chạy (Theo số ly đã bán trong đơn đã thanh toán).
         var topProducts = paid
             .SelectMany(o => o.Items)
             .GroupBy(i => i.ProductName)
