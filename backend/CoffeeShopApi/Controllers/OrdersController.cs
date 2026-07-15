@@ -13,13 +13,13 @@ public class OrdersController : ControllerBase
     private readonly AppDbContext _db;
     public OrdersController(AppDbContext db) => _db = db;
 
-    // GET /api/orders?userId=1 - lịch sử đơn của 1 user (mới nhất lên đầu).
+    // GET /api/orders?userId=1 - lịch sử đơn của 1 user ( mới nhất lên đầu ).
     [HttpGet]
     public async Task<IActionResult> GetByUser([FromQuery] int userId)
     {
         var orders = await _db.Orders
             .Where(o => o.UserId == userId)
-            .Include(o => o.Items) // kèm chi tiết món
+            .Include(o => o.Items) //kèm chi tiết món
             .OrderByDescending(o => o.Id)
             .ToListAsync();
         return Ok(orders);

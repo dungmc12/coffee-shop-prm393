@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CoffeeShopApi.Controllers;
 
-// Thanh toán online qua VNPay (môi trường SANDBOX - thẻ test, không mất tiền thật).
+// Thanh toán online qua VNPay (môi trường SANDBOX - thẻ Test, không mất tiền thật).
 // Luồng: App bấm "Thanh toán VNPay" -> gọi create-url -> mở trang VNPay trong trình duyệt
 //        -> khách nhập thẻ test -> VNPay gọi về vnpay-return -> backend kiểm tra chữ ký
 //        -> cập nhật đơn "Đã thanh toán" -> hiện trang kết quả.
@@ -21,7 +21,7 @@ public class PaymentsController : ControllerBase
         _config = config;
     }
 
-    // GET /api/payments/create-url?orderId=5 - tạo link thanh toán VNPay cho 1 đơn.
+    // GET /api/payments/create-url?orderId=5 - tạo link thanh toán VNpay cho 1 đơn.
     [HttpGet("create-url")]
     public async Task<IActionResult> CreateUrl([FromQuery] int orderId)
     {
@@ -39,7 +39,7 @@ public class PaymentsController : ControllerBase
             });
 
         var now = DateTime.Now;
-        // Tham số bắt buộc theo tài liệu VNPay v2.1.0. SortedDictionary để
+        // Tham số bắt buộc theo tài liệu VNPay v2.1.0. sortedDictionary để
         // tự sắp xếp theo alphabet - VNPay yêu cầu khi ký.
         var p = new SortedDictionary<string, string>
         {
