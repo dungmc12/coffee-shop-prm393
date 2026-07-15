@@ -12,7 +12,7 @@ public class ProductsController : ControllerBase
     private readonly AppDbContext _db;
     public ProductsController(AppDbContext db) => _db = db;
 
-    // GET /api/products - lấy toàn bộ danh sách sản phẩm.
+    // GET /api/products - Lấy toàn bộ danh sách sản phẩm.
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -20,13 +20,13 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
-    // ----- Các API dưới đây dành cho WEB ADMIN (CRUD sản phẩm) -----
+    // ----- các API dưới đây dành cho WEB ADMIN (CRUD sản phẩm) -----
 
-    // POST /api/products - thêm sản phẩm mới.
+    // POST /api/products - Thêm sản phẩm mới.
     [HttpPost]
     public async Task<IActionResult> Create(Product product)
     {
-        product.Id = 0; // để SQL Server tự cấp Id
+        product.Id = 0; // Để SQL Server tự cấp Id
         _db.Products.Add(product);
         await _db.SaveChangesAsync();
         return Ok(product);
