@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 namespace CoffeeShopApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")] // -> /api/admin
+[Route("api/[controller]")] // -> /api/adminn
 public class AdminController : ControllerBase
 {
     private readonly AppDbContext _db;
     public AdminController(AppDbContext db) => _db = db;
 
-    // GET /api/admin/orders - TẤT CẢ đơn hàng của mọi khách (cho web admin).
+    // GET /api/admin/orders - tất cả đơn hàng của mọi khách (Cho web admin).
     [HttpGet("orders")]
     public async Task<IActionResult> AllOrders()
     {
@@ -37,7 +37,7 @@ public class AdminController : ControllerBase
         var orders = await _db.Orders.Include(o => o.Items).ToListAsync();
         var paid = orders.Where(o => o.Status == "Đã thanh toán").ToList();
 
-        // Doanh thu 7 ngày gần nhất (chỉ tính đơn đã thanh toán).
+        // doanh thu 7 ngày gần nhất (chỉ tính đơn đã thanh toán).
         var today = DateTime.Now.Date;
         var revenueByDay = Enumerable.Range(0, 7)
             .Select(i => today.AddDays(-6 + i))
