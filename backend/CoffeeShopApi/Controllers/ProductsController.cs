@@ -32,7 +32,7 @@ public class ProductsController : ControllerBase
         return Ok(product);
     }
 
-    // PUT /api/products/{id} - sửa sản phẩm.
+    // PUT /api/products/{id} - Sửa sản phẩm.
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, Product product)
     {
@@ -47,7 +47,7 @@ public class ProductsController : ControllerBase
         return Ok(existing);
     }
 
-    // DELETE /api/products/{id} - xóa sản phẩm.
+    // DELETE /api/products/{id} - Xóa sản phẩm.
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
