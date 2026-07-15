@@ -13,6 +13,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+// Bật Swagger UI - trang tài liệu API có giao diện đẹp, test được từng API.
+// Mở http://localhost:5266/swagger để xem và thử các API.
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 // Cho phép app Flutter (nguồn khác) gọi API - bật CORS.
 builder.Services.AddCors(options =>
 {
@@ -33,6 +38,10 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Swagger UI luôn bật để tiện demo API tại http://localhost:5266/swagger
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors();
 

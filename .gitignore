@@ -50,3 +50,9 @@ backend/CoffeeShopApi/obj/
 # Visual Studio - file rác cá nhân
 backend/CoffeeShopApi/.vs/
 *.csproj.user
+
+# Báo cáo & hướng dẫn - giữ ở máy, không đẩy lên GitHub (giữ repo sạch code)
+BaoCao_CoffeeShop.md
+BaoCao_CoffeeShop.docx
+Report_CoffeeShop_EN.docx
+HUONG_DAN_CHAY.md
