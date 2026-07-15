@@ -50,7 +50,7 @@ public class OrdersController : ControllerBase
         return Ok(order);
     }
 
-    // PUT /api/orders/{id}/status - cập nhật trạng thái đơn.
+    // PUT /api/orders/{id}/status - cập nhật trạng thái đơn hàng.
     [HttpPut("{id}/status")]
     public async Task<IActionResult> UpdateStatus(int id, UpdateStatusDto dto)
     {

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CoffeeShopApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")] // -> /api/admin
+[Route("api/[controller]")] // -> /api/adminn
 public class AdminController : ControllerBase
 {
     private readonly AppDbContext _db;

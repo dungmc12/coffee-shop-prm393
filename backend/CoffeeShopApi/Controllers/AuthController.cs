@@ -13,7 +13,7 @@ public class AuthController : ControllerBase
     private readonly AppDbContext _db;
     public AuthController(AppDbContext db) => _db = db;
 
-    // POST /api/auth/register - đăng ký tài khoản mới.
+    // POST /api/auth/register - đăng ký tài khoản.
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto dto)
     {

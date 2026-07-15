@@ -13,7 +13,7 @@ public class MessagesController : ControllerBase
     private readonly AppDbContext _db;
     public MessagesController(AppDbContext db) => _db = db;
 
-    // GET /api/messages?userId=1 - toàn bộ đoạn chat của 1 user (cũ -> mới).
+    // GET /api/messages?userId=1 - toàn bộ đoạn chat của 1 user (cũ thành mới).
     [HttpGet]
     public async Task<IActionResult> GetByUser([FromQuery] int userId)
     {
